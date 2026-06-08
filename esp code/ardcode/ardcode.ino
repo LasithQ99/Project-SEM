@@ -44,7 +44,7 @@ const float H2_CURVE[2] = {1010.6, -2.130};  // MQ-5
 
 // ─── HARDWARE OBJECTS ────────────────────────────────────────
 Adafruit_AHTX0 aht20;
-LiquidCrystal_I2C lcd(0x27, 16, 4); // try 0x3F if not found
+LiquidCrystal_I2C lcd(0x27, 16, 4);
 
 // ─── SENSOR DATA ─────────────────────────────────────────────
 struct AirData {
@@ -262,7 +262,15 @@ void setup() {
 
   // I2C + LCD
   Wire.begin(I2C_SDA, I2C_SCL);
+  Wire.setClock(50000); // 50kHz clock for better compatibility with older/slow PCF8574 backpacks
+  delay(500); // Give LCD time to power up
+  
   lcd.init();
+  // Call begin() as well, as some library versions require it instead of init()
+  #if defined(ESP32)
+    // Some libraries use begin(cols, rows)
+  #endif
+  lcd.begin(16, 4); 
   lcd.backlight();
   lcd.setCursor(0, 0);
   lcd.print("AQM Booting...");
